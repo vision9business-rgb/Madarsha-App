@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Madarsha Industries - Lot Box Tags</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f5f4a">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mute:#6b6a64;--line:#dedcd3;--acc:#1f5f4a;--accink:#fff;--bad:#b3261e;--ok:#1f7a3d;--warn:#9a6700;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161614;--card:#222220;--ink:#efeee8;--mute:#a09f97;--line:#3a3a36;--acc:#5fc4a0;--accink:#102019;--bad:#ff8a80;--ok:#6fd48e;--warn:#e3b341;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#161614;--card:#222220;--ink:#efeee8;--mute:#a09f97;--line:#3a3a36;--acc:#5fc4a0;--accink:#102019;--bad:#ff8a80;--ok:#6fd48e;--warn:#e3b341;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--mute);font-size:13px;margin-bottom:12px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+nav button{flex:1;min-width:90px}
+button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.on,button.pri{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:600}
+button.bad{color:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:12px;color:var(--mute);margin:8px 0 3px}
+input{width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.st{padding:2px 8px;border-radius:99px;font-size:11px;border:1px solid currentColor}
+.Ready{color:var(--mute)}.Out{color:var(--warn)}.Returned{color:var(--ok)}
+.res{padding:12px;border-radius:10px;margin-top:10px;border:2px solid}
+.res.good{border-color:var(--ok)}.res.fail{border-color:var(--bad);color:var(--bad)}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.tag{position:relative;overflow:hidden;width:var(--w);height:var(--h);padding:1.5mm 2.5mm;background:#fff;color:#000;border:1px dashed var(--mute);font:8.5pt/1.25 Arial,Helvetica,sans-serif;display:flex;flex-direction:column;break-inside:avoid}
+.tag::before{content:attr(data-wm);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-18deg);font-weight:700;font-family:Arial,sans-serif;font-size:calc(var(--w)*.062);color:rgba(0,0,0,var(--wa));white-space:nowrap;z-index:0}
+.tag>*{position:relative;z-index:1}
+.ttl{font-weight:700;font-size:10.5pt;text-align:center;border-bottom:1px solid #000;padding-bottom:.5mm}
+.bd{flex:1;display:flex;justify-content:space-between;align-items:center;gap:2mm;min-height:0}
+.big{font-size:14pt;font-weight:700}
+.qt{font-size:15pt;font-weight:700;margin-top:1mm}
+.qr{width:var(--q);height:var(--q);flex:none}
+.qr img,.qr canvas{width:100%!important;height:100%!important;image-rendering:pixelated}
+.ft{font-size:7pt;text-align:center}
+.hide{display:none}
+#printArea{display:none}
+@media print{
+ body{background:#fff}
+ .app{display:none!important}
+ #printArea{display:block!important}
+ #printArea .tag{border:0;margin:0;break-after:page;page-break-after:always}
+ #printArea .tag:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+<style id="pg"></style>
+</head>
+<body>
+<div class="app">
+ <h1>Lot Box Tags</h1>
+ <div class="sub">Print all box tags once when a lot arrives. Each box carries one tag with a fixed quantity.</div>
+ <nav>
+  <button id="t_new" class="on" onclick="show('new')">New lot</button>
+  <button id="t_check" onclick="show('check')">Give out / Return</button>
+  <button id="t_ledger" onclick="show('ledger')">Boxes</button>
+  <button id="t_sum" onclick="show('sum')">Lots</button>
+ </nav>
+
+ <section id="v_new">
+  <div class="card">
+   <label>Customer name</label><input id="cust" list="custs"><datalist id="custs"></datalist>
+   <div class="row">
+    <div><label>Lot number / name</label><input id="lot" placeholder="e.g. LOT-245"></div>
+    <div><label>Total lot size (pcs)</label><input id="total" type="number" min="1" oninput="calc()"></div>
+   </div>
+   <div class="row">
+    <div><label>Pieces per box</label><input id="per" type="number" min="1" oninput="calc()"></div>
+    <div><label>Boxes that will be made</label><input id="nb" disabled></div>
+   </div>
+   <div id="err" class="hide" style="color:var(--bad);margin-top:8px"></div>
+   <div style="margin-top:12px"><button class="pri" onclick="makeLot()">Create box tags</button></div>
+  </div>
+  <div class="card">
+   <b>Printer &amp; label settings</b> <span class="sub">(TVS LP46 Neo: set your label size)</span>
+   <div class="row">
+    <div><label>Label width (mm)</label><input id="cw" type="number" min="30" onchange="setCfg()"></div>
+    <div><label>Label height (mm)</label><input id="ch" type="number" min="20" onchange="setCfg()"></div>
+   </div>
+   <div class="row">
+    <div><label>Watermark text</label><input id="cwm" onchange="setCfg()"></div>
+    <div><label>Watermark strength (5 light - 40 dark)</label><input id="cwa" type="number" min="5" max="40" onchange="setCfg()"></div>
+   </div>
+  </div>
+  <div id="prev" class="card hide">
+   <div style="display:flex;justify-content:space-between;align-items:center"><b id="prevT"></b><button class="pri" onclick="doPrint()">Print all tags</button></div>
+   <div id="tags" class="tags"></div>
+  </div>
+ </section>
+
+ <section id="v_check" class="hide">
+  <div class="card">
+   <label>Tag number (e.g. 15 or SL-0015)</label><input id="cs" inputmode="numeric">
+   <label>Code printed on tag</label><input id="cc" placeholder="4 characters" style="text-transform:uppercase">
+   <div style="margin-top:12px"><button class="pri" onclick="check()">Check tag</button></div>
+   <div id="cres"></div>
+  </div>
+ </section>
+
+ <section id="v_ledger" class="hide">
+  <div class="card">
+   <input id="q" placeholder="Search customer, lot or tag no." oninput="renderLedger()">
+   <div class="tw" style="margin-top:10px"><table id="tbl"></table></div>
+   <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="exportCSV()">Download CSV</button>
+    <button onclick="backup()">Download backup</button>
+    <button onclick="document.getElementById('rf').click()">Restore backup</button>
+    <input id="rf" type="file" accept=".json" class="hide" onchange="restore(this)">
+   </div>
+  </div>
+ </section>
+
+ <section id="v_sum" class="hide"><div class="card"><div class="tw"><table id="stbl"></table></div></div></section>
+</div>
+<div id="printArea"></div>
+
+<script>
+var KEY='lotboxes_v1',SK='lotboxes_salt',B=[],salt='';
+function load(){try{B=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){B=[]}
+ try{salt=localStorage.getItem(SK);if(!salt){salt=Math.random().toString(36).slice(2)+Date.now();localStorage.setItem(SK,salt)}}catch(e){salt='x'}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(B))}catch(e){alert('Could not save in this browser.')}}
+function code(b){var s=b.no+'|'+b.cust+'|'+b.lot+'|'+b.boxNo+'|'+b.qty+'|'+salt,h=5381;
+ for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36).toUpperCase().slice(-4).padStart(4,'0')}
+function sn(n){return 'SL-'+String(n).padStart(4,'0')}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function v(i){return document.getElementById(i).value.trim()}
+function show(x){['new','check','ledger','sum'].forEach(function(k){document.getElementById('v_'+k).classList.toggle('hide',k!==x);document.getElementById('t_'+k).classList.toggle('on',k===x)});
+ if(x==='ledger')renderLedger();if(x==='sum')renderSum()}
+function calc(){var t=+v('total'),p=+v('per');document.getElementById('nb').value=(t>0&&p>0)?Math.ceil(t/p)+(t%p?' (last box '+(t%p)+' pcs)':''):''}
+var CK='lotboxes_cfg',cfg={w:100,h:50,wm:'MADARSHA INDUSTRIES',wa:12},lastList=[],LOTK=[];
+function loadCfg(){try{var c=JSON.parse(localStorage.getItem(CK)||'null');if(c)cfg=Object.assign(cfg,c)}catch(e){}
+ document.getElementById('cw').value=cfg.w;document.getElementById('ch').value=cfg.h;document.getElementById('cwm').value=cfg.wm;document.getElementById('cwa').value=cfg.wa}
+function setCfg(){cfg.w=Math.max(30,+v('cw')||100);cfg.h=Math.max(20,+v('ch')||50);cfg.wm=v('cwm');cfg.wa=Math.min(40,Math.max(5,+v('cwa')||12));
+ try{localStorage.setItem(CK,JSON.stringify(cfg))}catch(e){}loadCfg();if(lastList.length)draw(lastList)}
+function doPrint(){document.getElementById('pg').textContent='@page{size:'+cfg.w+'mm '+cfg.h+'mm;margin:0}';window.print()}
+function tagHTML(b){var q=Math.min(cfg.h-14,cfg.w*0.34).toFixed(1);
+ return '<div class="tag" data-wm="'+esc(cfg.wm)+'" style="--w:'+cfg.w+'mm;--h:'+cfg.h+'mm;--q:'+q+'mm;--wa:'+(cfg.wa/100)+'"><div class="ttl">MADARSHA INDUSTRIES</div><div class="bd"><div class="tx"><div class="big">'+sn(b.no)+'</div>Customer: <b>'+esc(b.cust)+'</b><br>Lot: <b>'+esc(b.lot)+'</b><br>Box <b>'+b.boxNo+' of '+b.boxes+'</b><div class="qt">QTY: '+b.qty+'</div></div><div class="qr"></div></div><div class="ft">Code: <b>'+code(b)+'</b> &middot; Valid only if in office record</div></div>'}
+function draw(list){['tags','printArea'].forEach(function(id){var el=document.getElementById(id);el.innerHTML=list.map(tagHTML).join('');
+ var qs=el.querySelectorAll('.qr');list.forEach(function(b,i){try{new QRCode(qs[i],{text:sn(b.no)+'|'+code(b)+'|'+b.qty,width:200,height:200})}catch(e){}})})}
+function reprint(i){var k=LOTK[i],l=B.filter(function(b){return b.cust+'||'+b.lot===k});if(!l.length)return;show('new');lastList=l;
+ document.getElementById('prevT').textContent=l.length+' tags for '+l[0].lot+' (reprint)';document.getElementById('prev').classList.remove('hide');draw(l)}
+function makeLot(){var e=document.getElementById('err'),cust=v('cust'),lot=v('lot'),t=+v('total'),p=+v('per');
+ if(!cust||!lot||!t||!p){e.textContent='Please fill all fields.';e.classList.remove('hide');return}
+ if(B.some(function(b){return b.lot===lot&&b.cust===cust})){e.textContent='Tags for this lot already exist. Find them under Boxes.';e.classList.remove('hide');return}
+ e.classList.add('hide');
+ var n=Math.ceil(t/p),no=B.reduce(function(m,b){return Math.max(m,b.no)},0),list=[];
+ for(var i=1;i<=n;i++){no++;var q=(i<n)?p:(t-p*(n-1));
+  list.push({no:no,at:Date.now(),cust:cust,lot:lot,lotsize:t,boxNo:i,boxes:n,qty:q,status:'Ready',who:'',outAt:null,retAt:null})}
+ B=B.concat(list);save();lists();
+ document.getElementById('prevT').textContent=n+' tags for '+lot;document.getElementById('prev').classList.remove('hide');lastList=list;draw(list)}
+function lists(){document.getElementById('custs').innerHTML=[...new Set(B.map(function(b){return b.cust}))].map(function(x){return '<option value="'+esc(x)+'">'}).join('')}
+function find(t){var n=parseInt(String(t).replace(/\D/g,''),10);return B.find(function(b){return b.no===n})}
+function check(){var b=find(v('cs')),c=v('cc').toUpperCase(),o=document.getElementById('cres');
+ if(!b){o.innerHTML='<div class="res fail"><b>NOT IN RECORDS.</b> This tag was never issued. Treat as fake.</div>';return}
+ var ok=c&&c===code(b),h='<div class="res '+(ok?'good':'fail')+'"><b>'+(ok?'Genuine tag':(c?'CODE MISMATCH. Tag may be altered.':'Enter the code to confirm the tag is genuine'))+'</b><br>'+
+ sn(b.no)+' &middot; '+esc(b.cust)+' &middot; Lot '+esc(b.lot)+' &middot; Box '+b.boxNo+'/'+b.boxes+'<br>Quantity: <b>'+b.qty+'</b><br>Status: <span class="st '+b.status+'">'+b.status+'</span>';
+ if(b.status==='Out')h+=' since '+new Date(b.outAt).toLocaleString('en-IN')+(b.who?' ('+esc(b.who)+')':'');
+ if(b.status==='Returned')h+='<br><b style="color:var(--bad)">Already returned on '+new Date(b.retAt).toLocaleString('en-IN')+'. Any second tag with this number is a duplicate.</b>';
+ if(ok&&b.status==='Ready')h+='<div class="row" style="margin-top:10px"><input id="who" placeholder="Taken by (optional, not printed)"><button class="pri" onclick="act('+b.no+',\'Out\')">Give out box</button></div>';
+ if(ok&&b.status==='Out')h+='<div style="margin-top:10px"><button class="pri" onclick="act('+b.no+',\'Returned\')">Mark returned</button></div>';
+ o.innerHTML=h+'</div>'}
+function act(n,s){var b=find(n);if(s==='Out'){var w=document.getElementById('who');b.who=w?w.value.trim():'';b.outAt=Date.now()}else b.retAt=Date.now();b.status=s;save();check()}
+function renderLedger(){var q=(v('q')||'').toLowerCase();
+ var r=B.slice().reverse().filter(function(b){return (sn(b.no)+b.cust+b.lot).toLowerCase().indexOf(q)>-1});
+ document.getElementById('tbl').innerHTML='<tr><th>Tag</th><th>Customer</th><th>Lot</th><th>Box</th><th>Qty</th><th>Status</th><th>Taken by</th></tr>'+
+ r.map(function(b){return '<tr><td>'+sn(b.no)+'</td><td>'+esc(b.cust)+'</td><td>'+esc(b.lot)+'</td><td>'+b.boxNo+'/'+b.boxes+'</td><td>'+b.qty+'</td><td><span class="st '+b.status+'">'+b.status+'</span></td><td>'+esc(b.who||'-')+'</td></tr>'}).join('')}
+function renderSum(){var m={};B.forEach(function(b){var k=b.cust+'||'+b.lot,o=m[k]=m[k]||{c:b.cust,l:b.lot,t:b.lotsize,n:b.boxes,r:0,o:0,d:0,dq:0};
+ if(b.status==='Ready')o.r++;else if(b.status==='Out')o.o++;else{o.d++;o.dq+=b.qty}});LOTK=Object.keys(m);
+ document.getElementById('stbl').innerHTML='<tr><th>Customer</th><th>Lot</th><th>Lot size</th><th>Boxes</th><th>Not taken</th><th>Out</th><th>Returned</th><th>Pcs returned</th><th></th></tr>'+
+ LOTK.map(function(k,i){var o=m[k];return '<tr><td>'+esc(o.c)+'</td><td>'+esc(o.l)+'</td><td>'+o.t+'</td><td>'+o.n+'</td><td>'+o.r+'</td><td>'+o.o+'</td><td>'+o.d+'</td><td>'+o.dq+'</td><td><button onclick="reprint('+i+')">Reprint tags</button></td></tr>'}).join('')}
+function dl(n,t,ty){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:ty}));a.download=n;a.click()}
+function exportCSV(){var r=[['Tag','Customer','Lot','Lot size','Box','Of','Qty','Status','Taken by']];
+ B.forEach(function(b){r.push([sn(b.no),b.cust,b.lot,b.lotsize,b.boxNo,b.boxes,b.qty,b.status,b.who])});
+ dl('boxes.csv',r.map(function(x){return x.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(',')}).join('\n'),'text/csv')}
+function backup(){dl('boxes-backup.json',JSON.stringify({salt:salt,boxes:B}),'application/json')}
+function restore(i){var f=i.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);
+ if(!confirm('Replace current data with backup?'))return;B=d.boxes;salt=d.salt;localStorage.setItem(SK,salt);save();lists();renderLedger()}catch(e){alert('Invalid backup file')}};r.readAsText(f)}
+load();loadCfg();lists();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
